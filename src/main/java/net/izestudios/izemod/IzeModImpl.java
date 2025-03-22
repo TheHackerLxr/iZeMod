@@ -53,12 +53,18 @@ public final class IzeModImpl implements IzeModAPIBase {
 
     public void lateInitialize() {
         HudRenderingImpl.INSTANCE.init();
+
+        // Run addons as late as possible
+        AddonManager.INSTANCE.run(addon -> addon.onLoad(this));
     }
 
     private void shutdown() {
         AddonManager.INSTANCE.run(addon -> addon.onShutdown(this));
 
         DiscordRPCImpl.INSTANCE.stop();
+
+        // Run addons as late as possible
+        AddonManager.INSTANCE.run(addon -> addon.onShutdown(this));
     }
 
     // --------------------------------------------------------------------------------------------
