@@ -20,6 +20,7 @@ package net.izestudios.izemod;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.metadata.ModMetadata;
+import net.izestudios.izemod.addon.AddonManager;
 import net.izestudios.izemod.api.IzeModAPIBase;
 import net.izestudios.izemod.api.discord.DiscordRPC;
 import net.izestudios.izemod.api.hud.HudRendering;
@@ -42,9 +43,12 @@ public final class IzeModImpl implements IzeModAPIBase {
     public void initialize() {
         final ModMetadata metadata = FabricLoader.getInstance().getModContainer("izemod").get().getMetadata();
         version = metadata.getVersion().getFriendlyString();
-        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
+
+        AddonManager.INSTANCE.run(addon -> addon.onLoad(this));
 
         DiscordRPCImpl.INSTANCE.start();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
     }
 
     public void lateInitialize() {
@@ -52,6 +56,8 @@ public final class IzeModImpl implements IzeModAPIBase {
     }
 
     private void shutdown() {
+        AddonManager.INSTANCE.run(addon -> addon.onShutdown(this));
+
         DiscordRPCImpl.INSTANCE.stop();
     }
 
